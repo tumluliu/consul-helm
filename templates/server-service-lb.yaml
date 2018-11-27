@@ -7,7 +7,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "consul.fullname" . }}-server
+  name: {{ template "consul.fullname" . }}-server-lb
   labels:
     app: {{ template "consul.name" . }}
     chart: {{ template "consul.chart" . }}
@@ -18,8 +18,11 @@ metadata:
     # to an open issue where it may not work:
     # https://github.com/kubernetes/kubernetes/issues/58662
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
 spec:
-  clusterIP: None
+  #clusterIP: 10.0.242.91
+  loadBalancerIP: 192.4.1.162
+  type: LoadBalancer
   # We want the servers to become available even if they're not ready
   # since this DNS is also used for join operations.
   publishNotReadyAddresses: true
@@ -31,16 +34,8 @@ spec:
       protocol: "TCP"
       port: 8301
       targetPort: 8301
-    - name: serflan-udp
-      protocol: "UDP"
-      port: 8301
-      targetPort: 8301
     - name: serfwan-tcp
       protocol: "TCP"
-      port: 8302
-      targetPort: 8302
-    - name: serfwan-udp
-      protocol: "UDP"
       port: 8302
       targetPort: 8302
     - name: server
@@ -50,10 +45,6 @@ spec:
       protocol: "TCP"
       port: 8600
       targetPort: dns-tcp
-    - name: dns-udp
-      protocol: "UDP"
-      port: 8600
-      targetPort: dns-udp
   selector:
     app: {{ template "consul.name" . }}
     release: "{{ .Release.Name }}"
