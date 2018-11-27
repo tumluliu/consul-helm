@@ -27,7 +27,7 @@ global:
   # as. This shouldn't be changed once the Consul cluster is up and running
   # since Consul doesn't support an automatic way to change this value
   # currently: https://github.com/hashicorp/consul/issues/1858
-  datacenter: cbsd
+  datacenter: dc1
 
 server:
   enabled: "-"
