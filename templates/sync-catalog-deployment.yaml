@@ -4,6 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "consul.fullname" . }}-sync-catalog
+  namespace: {{ .Release.Namespace }}
   labels:
     app: {{ template "consul.name" . }}
     chart: {{ template "consul.chart" . }}
@@ -57,5 +58,14 @@ spec:
                 {{- if .Values.syncCatalog.k8sPrefix }}
                 -k8s-service-prefix="{{ .Values.syncCatalog.k8sPrefix}}" \
                 {{- end }}
-                -k8s-write-namespace=${NAMESPACE}
+                -k8s-write-namespace=${NAMESPACE} \
+                {{- if (not .Values.syncCatalog.syncClusterIPServices) }}
+                -sync-clusterip-services=false \
+                {{- end }}
+                {{- if .Values.syncCatalog.nodePortSyncType }}
+                -node-port-sync-type={{ .Values.syncCatalog.nodePortSyncType }} \
+                {{- end }}
+                {{- if .Values.syncCatalog.k8sTag }}
+                -consul-k8s-tag={{ .Values.syncCatalog.k8sTag }}
+                {{- end }}
 {{- end }}
